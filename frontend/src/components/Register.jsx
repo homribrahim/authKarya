@@ -64,8 +64,9 @@ export const Register = () => {
                 toast.success('User Successfully Created!');
                 console.log("Form Submitted !");
                 setTimeout(() => {
-                    navigate('/login')
-                }, 2000);
+                    setIsContainerActive(false)
+                }, 1500);
+
 
             } catch (err) {
                 console.log(err)
@@ -76,6 +77,40 @@ export const Register = () => {
         }
 
     }
+    ////////////////////////////////////LOGIN/////////////////////
+    const signin = async (e) => {
+        e.preventDefault()
+        console.log('Form Submitted')
+        if (formValidation()) {
+            const data = {
+                email: email,
+                password: password
+            }
+            try {
+                const response = await userService.signin(data)   //to remove await you need to put async
+                console.log("Response => ", response)
+                //save user data localstorage
+                localStorage.setItem("user_data", JSON.stringify(response.data.user)) //to convert them from object into string 
+                localStorage.setItem("token", response.data.token)
+
+                toast.success('User Successfully Logged In!');
+                setEmail('')
+                setPassword('')
+                //redirect to homepage
+                navigate('/home')
+
+            } catch (err) {
+                console.log(err)
+                toast.error(err.response.data.message)
+            }
+
+        } else {
+            console.log('Form Invalid')
+        }
+    }
+
+
+
 
     return (
         <div id='container' className={`container${isContainerActive ? " right-panel-active" : ""}`} >
@@ -115,13 +150,12 @@ export const Register = () => {
                                 * {errors.password}
                             </h5> : ''
                     }
-
                     <button type='submit'>Sign Up</button>
                 </form>
             </div>
 
             <div className='form-container sign-in-container'>
-                <form action="#">
+                <form onSubmit={signin}>
                     <h1>Sign in</h1>
                     <div className="social-container">
                         <a href="#" className="social"><FontAwesomeIcon icon={faFacebook} size="xl" /></a>
@@ -129,10 +163,30 @@ export const Register = () => {
                         <a href="#" className="social"><FontAwesomeIcon icon={faLinkedin} size="xl" /></a>
                     </div>
                     <span>or use your account</span>
-                    <input type="email" placeholder="Email" />
-                    <input type="password" placeholder="Password" />
+                    <input className='input' type="email" placeholder="Email"
+                        value={email}
+                        onChange={(e) =>
+                            setEmail(e.target.value)
+                        } />
+                    {
+                        (errors.email) != "" ?
+                            <h5 style={{ marginLeft: "-11rem", color: "red", fontSize: "12px" }}>
+                                * {errors.email}
+                            </h5> : ''
+                    }
+                    <input className='input' type="password" placeholder="Password"
+                        value={password}
+                        onChange={(e) =>
+                            setPassword(e.target.value)
+                        } />
+                    {
+                        (errors.password) != "" ?
+                            <h5 style={{ marginLeft: "-9.5rem", color: "red", fontSize: "12px" }}>
+                                * {errors.password}
+                            </h5> : ''
+                    }
                     <a href="#" className='passsword_text'>Forgot your password?</a>
-                    <button contenteditable="true" >Sign In</button>
+                    <button type='submit'>Sign In</button>
                 </form>
             </div>
             <div className="overlay-container">
